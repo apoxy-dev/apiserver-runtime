@@ -41,6 +41,7 @@ type Strategy interface {
 	rest.RESTCreateStrategy
 	rest.RESTDeleteStrategy
 	rest.TableConvertor
+	rest.SingularNameProvider
 }
 
 var _ Strategy = DefaultStrategy{}
@@ -166,4 +167,15 @@ func (d DefaultStrategy) WarningsOnCreate(ctx context.Context, obj runtime.Objec
 // WarningsOnUpdate sends warning header on update
 func (d DefaultStrategy) WarningsOnUpdate(ctx context.Context, obj, old runtime.Object) []string {
 	return nil
+}
+
+// GetSingularName implements rest.SingularNameProvider
+func (d DefaultStrategy) GetSingularName() string {
+	if d.Object == nil {
+		return ""
+	}
+	if n, ok := d.Object.(rest.SingularNameProvider); ok {
+		return n.GetSingularName()
+	}
+	return ""
 }
